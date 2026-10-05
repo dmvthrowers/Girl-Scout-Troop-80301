@@ -1,0 +1,86 @@
+// Girl Scout Troop 80301 — Dumfries VA
+// Built from the "girl-scouts" preset of the Scouts Website Template.
+// Lines starting with // are notes and are ignored.
+// After you save (commit) on GitHub, the site rebuilds in about a minute.
+{
+  // Preset fills in group names, age levels, join steps, FAQ, links, safety rules.
+  // Anything set below overrides the preset.
+  "preset": "girl-scouts",
+
+  "site": {
+    // Leave "" on GitHub Pages; it's filled in automatically.
+    "url": "",
+    "language": "en",
+    "date_format": "us",
+    // Link in the footer to the template this site was built from. "" hides it.
+    "source_url": "https://github.com/dmvthrowers/Scouts-Template-Site"
+  },
+
+  "group": {
+    "name": "Girl Scout Troop 80301",
+    "number": "80301",
+    "tagline": "Courage, Confidence, Character",
+    "city": "Dumfries",
+    "region": "VA",
+    "founded": "2026",
+    "description": "A new multi-level Girl Scout troop (grades K–5) for families at Covington-Harper Elementary in Dumfries, Virginia.",
+    "serves": "Girls in kindergarten through 5th grade at Covington-Harper Elementary School."
+  },
+
+  "meetings": {
+    // CONFIRM: meeting day/time was still undecided as of Sep 29, 2026.
+    "summary": "Meeting schedule to be announced",
+    // Keep it general (town only) for the girls' privacy.
+    "location": "Dumfries VA",
+    "season": "2026–2027 Girl Scout year"
+  },
+
+  "contact": {
+    // TODO: set up a shared troop email (e.g. troop80301@...) — don't use a personal address.
+    "email": "",
+    "phone": "",
+    "social": []
+  },
+
+  "cost": {
+    "summary": "To be announced",
+    "details": "Includes the annual Girl Scouts membership plus troop dues (to be announced). Financial assistance is available through Girl Scouts Nation's Capital — cost should never keep a girl from joining.",
+    "aid_url": "https://www.gscnc.org/"
+  },
+
+  // Girl Scout troops don't have a chartering organization.
+  "charter": { "name": "", "url": "" },
+
+  "council": { "name": "Girl Scouts Nation's Capital", "url": "https://www.gscnc.org/" },
+
+  // Adult leaders — only list people who said yes to being on the public site.
+  // TODO: confirm with Heather, Jazmine, and Kathleen before naming them here.
+  "leaders": [
+    { "role": "Troop Leaders", "open": true }
+  ],
+
+  "events": [
+    { "date": "2026-10-13", "title": "Service Unit 80-4 Meeting", "details": "Monthly service unit meeting for troop volunteers. Ask a troop leader for time and location." },
+    { "date": "", "title": "First Troop Meeting", "details": "Date, time, and location to be announced — check back soon!" }
+  ],
+
+  // Optional Google Calendar embed. Leave "" to show only the events list.
+  "calendar": { "embed_url": "" },
+
+  // Photos go in assets/images/gallery/. Only post girls with written parent permission.
+  "gallery": [],
+
+  // Extra links for the Resources page (added after the preset's links)
+  "links": [
+    { "title": "Girl Scouts Nation's Capital", "text": "Our local council: programs, camps, events, and shops.", "url": "https://www.gscnc.org/", "label": "gscnc.org" }
+  ],
+
+  // Extra FAQ entries (added after the preset's FAQ)
+  "faq_extra": [
+    { "q": "Which service unit are we in?", "a": "Service Unit 80-4 of Girl Scouts Nation's Capital, serving the Dumfries area." },
+    { "q": "We're a new troop — can we still join?", "a": "Yes! Troop 80301 just formed for the 2026–2027 Girl Scout year and is open for registration. Email us and we'll get you started." }
+  ],
+
+  // Colors: uses the preset's Girl Scout green/gold.
+  "theme": {}
+}
