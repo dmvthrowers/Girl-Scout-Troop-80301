@@ -30,3 +30,6 @@ exactly what to do.
       (public site, kids' troop — get explicit consent first)
 - [ ] **Dues** — currently "To be announced"
 - [ ] Photos — only with written parent permission, no full names of girls
+- [ ] **Own domain (optional)** — the site is at https://dmvthrowers.club/Girl-Scout-Troop-80301/
+      for now. To get e.g. `troop80301.org` (~$10–20/yr; check the renewal price and ask
+      GSCNC before using "girlscouts" in the name), follow README → "Custom domain".
