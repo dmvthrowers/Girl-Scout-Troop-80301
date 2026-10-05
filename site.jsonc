@@ -8,7 +8,8 @@
   "preset": "girl-scouts",
 
   "site": {
-    // Leave "" on GitHub Pages; it's filled in automatically.
+    // Leave "" on GitHub Pages: it's filled in automatically, even after you add
+    // a custom domain (README "Custom domain"). Only set it when hosting elsewhere.
     "url": "",
     "language": "en",
     "date_format": "us",
