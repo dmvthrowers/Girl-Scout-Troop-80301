@@ -55,7 +55,7 @@
   "council": { "name": "Girl Scouts Nation's Capital", "url": "https://www.gscnc.org/" },
 
   // Adult leaders — only list people who said yes to being on the public site.
-  // TODO: confirm with Heather, Jazmine, and Kathleen before naming them here.
+  // TODO: get each leader's OK before naming them here.
   "leaders": [
     { "role": "Troop Leaders", "open": true }
   ],
