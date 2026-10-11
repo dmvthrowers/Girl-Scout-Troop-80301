@@ -185,8 +185,10 @@ class Site:
         self.has_calendar = bool(cfg.get("calendar", {}).get("embed_url"))
         groups_label = self.terms.get("groups", "Groups")
         self.pages = [("index", "Home"), ("about", "About"), ("join", "Join"), ("groups", groups_label),
-                      ("calendar", "Calendar"), ("gallery", "Gallery"), ("resources", "Resources"),
-                      ("faq", "FAQ"), ("contact", "Contact")]
+                      ("calendar", "Calendar"), ("gallery", "Gallery"), ("resources", "Resources")]
+        if cfg.get("forms"):                                       # the Forms page only exists when forms are listed
+            self.pages.append(("forms", "Forms"))
+        self.pages += [("faq", "FAQ"), ("contact", "Contact")]
         self.footer_pages = self.pages + [("privacy", "Privacy & Safety")]
 
     # --- shared text
@@ -484,6 +486,35 @@ class Site:
 </section>"""
         return "About", f"About {self.name}: who we are, what we do, and who leads us.", body, None
 
+    def youth_protection(self):
+        """A short "Youth Protection" section for the Join page, when youth_protection.show is true."""
+        c = self.cfg
+        yp = c.get("youth_protection") or {}
+        if yp.get("show") is not True:
+            return ""
+        lines = []
+        if yp.get("two_adult_rule", True):
+            rule = yp.get("rule_text") or ("Two adults, always. At least two approved adults are with the kids at every "
+                                           "meeting and activity, and no adult is ever alone with a child.")
+            lines.append(f"<p><strong>{esc(rule)}</strong></p>")
+        links = list(yp.get("links") or [])
+        if c["safety"].get("training_url"):
+            links.insert(0, {"label": c["safety"].get("training_name") or "Training for adult volunteers",
+                             "url": c["safety"]["training_url"]})
+        links = [l for l in links if l.get("url") and l.get("label")]
+        if links:
+            items = "".join(f"<li>{ext_link(l['url'], l['label'])}</li>" for l in links)
+            lines.append(f'<p>Official training and policies for adult volunteers:</p>\n    <ul class="inline-list">{items}</ul>')
+        lines.append('<p><a href="privacy.html#safety">Read how we keep kids safe</a></p>')
+        return f"""
+<section class="section">
+  <div class="wrap narrow">
+    <h2>{esc(c["safety"]["title"])}</h2>
+    {chr(10).join("    " + l if i else l for i, l in enumerate(lines))}
+  </div>
+</section>
+"""
+
     def page_join(self):
         c, t = self.cfg, self.terms
         steps = "".join(f'\n  <li class="step"><h3>{esc(s["title"])}</h3><p>{esc(self.fill(s["text"]))}</p></li>'
@@ -504,7 +535,7 @@ class Site:
     {join_btn}
   </div>
 </section>
-
+{self.youth_protection()}
 <section class="section section-alt">
   <div class="wrap">
     <div class="cards cards-3">
@@ -523,8 +554,9 @@ class Site:
                         f'<h3>{esc(gp["name"])}</h3><p>{esc(gp["text"])}</p></div>' for gp in c["groups"])
         body = f"""{self.page_head(f"Our {t['groups']}", c.get("groups_intro", ""))}
 
-<section class="section">
+<section class="section" aria-labelledby="groups-heading">
   <div class="wrap">
+    <h2 id="groups-heading" class="sr-only">{esc(t['groups'])}</h2>
     <div class="cards cards-3">{cards}
     </div>
   </div>
@@ -561,7 +593,13 @@ class Site:
     def page_gallery(self):
         c = self.cfg
         figs = []
-        for ph in c.get("gallery", []):
+        photos = c.get("photos") or {}
+        listed = c.get("gallery", [])
+        if listed and photos.get("permission_confirmed") is not True:
+            warnings.append(f'Your gallery lists {len(listed)} photo(s), but none are shown: set photos.permission_confirmed '
+                            'to true in site.jsonc once you have written permission from a parent or guardian for every child in them.')
+            listed = []
+        for ph in listed:
             src = ROOT / "assets" / ph["src"]
             if not src.exists():
                 warnings.append(f'Gallery photo not found: assets/{ph["src"]}')
@@ -609,13 +647,68 @@ class Site:
             cards = '\n  <div class="card"><h3>Questions?</h3><p>Answers to common questions.</p><p><a href="faq.html">Read the FAQ</a></p></div>'
         body = f"""{self.page_head("Resources", "Helpful links for families.")}
 
-<section class="section">
+<section class="section" aria-labelledby="links-heading">
   <div class="wrap">
+    <h2 id="links-heading" class="sr-only">Links</h2>
     <div class="cards cards-3">{cards}
     </div>
   </div>
 </section>"""
         return "Resources", f"Helpful links for {self.name} families.", body, None
+
+    def page_forms(self):
+        """A library of permission, medical and registration forms, each with the date it was last updated."""
+        c = self.cfg
+        style = c["site"].get("date_format", "us")
+        order, groups = [], {}
+        for f in c.get("forms", []):
+            title = (f.get("title") or "").strip()
+            if not title:
+                warnings.append("A form in site.jsonc has no title. Skipped.")
+                continue
+            if f.get("file"):
+                path = ROOT / "assets" / "forms" / f["file"]
+                if not path.exists():
+                    warnings.append(f'Form "{title}": assets/forms/{f["file"]} was not found. Skipped.')
+                    continue
+                href = f'forms/{esc(f["file"])}'
+                rel = ""
+            elif f.get("url") and f["url"].startswith("https://"):
+                href, rel = esc(f["url"]), ' rel="noopener noreferrer"'
+            else:
+                warnings.append(f'Form "{title}" needs a "file" (in assets/forms/) or an https:// "url". Skipped.')
+                continue
+            updated = ""
+            if f.get("updated"):
+                try:
+                    d = dt.date.fromisoformat(f["updated"])
+                    updated = f'<span class="label">Updated {esc(fmt_date(d, style).split(" ", 1)[1] if style == "intl" else fmt_date(d, style).split(", ", 1)[1])}</span>'
+                    if (self.today - d).days > 365:
+                        warnings.append(f'Form "{title}" was last updated {f["updated"]}. Check it is still current, then update the date.')
+                except ValueError:
+                    warnings.append(f'Form "{title}" has a bad date "{f["updated"]}" (use YYYY-MM-DD).')
+            else:
+                warnings.append(f'Form "{title}" has no "updated" date; families like to know it is current.')
+            kind = (f.get("category") or "Forms").strip()
+            if kind not in groups:
+                order.append(kind)
+                groups[kind] = []
+            groups[kind].append(f'\n  <div class="card">{updated}<h3>{esc(title)}</h3><p>{esc(f.get("text", ""))}</p>'
+                                f'<p><a href="{href}"{rel}>{esc(f.get("label") or "Download")}</a></p></div>')
+        sections = "".join(
+            f"""
+<section class="section{' section-alt' if i % 2 else ''}">
+  <div class="wrap">
+    <h2>{esc(k)}</h2>
+    <div class="cards cards-3">{"".join(groups[k])}
+    </div>
+  </div>
+</section>""" for i, k in enumerate(order))
+        if not sections:
+            sections = '\n<section class="section"><div class="wrap"><p class="muted center">No forms posted yet.</p></div></section>'
+        body = f"""{self.page_head("Forms", "Download the forms you need. Ask a leader if you're not sure which one applies.")}
+{sections}"""
+        return "Forms", f"Forms for {self.name}: permission, medical, and registration.", body, None
 
     def page_faq(self):
         c = self.cfg
@@ -670,7 +763,7 @@ class Site:
       {ext_link("https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement", "GitHub Privacy Statement")}.{cal}</p>
     <h2>When You Email Us</h2>
     <p>We use your name, email, and anything you share only to answer you and run our activities. We never sell or share it.</p>
-    <h2>{esc(c["safety"]["title"])}</h2>
+    <h2 id="safety">{esc(c["safety"]["title"])}</h2>
     <ul>{"".join(f"<li>{esc(p)}</li>" for p in c["safety"]["points"])}</ul>
     <h2>Photo Removal</h2>
     <p>Want a photo taken down? {("Email " + self.mail()) if self.email() else "Tell a leader at a meeting"} and we'll remove it promptly.</p>
@@ -763,6 +856,10 @@ class Site:
         # The base path lets scripts/check_site.py resolve 404.html's absolute links.
         if OUT == ROOT / "_site":
             (ROOT / ".build-base-path").write_text(self.base_path)
+            photos = self.cfg.get("photos") or {}
+            (ROOT / ".build-privacy.json").write_text(json.dumps({
+                "first_names_only": photos.get("first_names_only") is not False,
+                "allowed_names": [n for n in photos.get("allowed_names", []) if isinstance(n, str)]}))
 
 
 def main():
