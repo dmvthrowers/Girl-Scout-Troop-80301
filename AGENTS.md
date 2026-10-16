@@ -43,6 +43,8 @@ Get a correct, live site in one session (15–30 minutes) with as few human step
 - **Kids' privacy:**
   - No full names of children anywhere.
   - Photos only with the user's confirmation of written parent/guardian permission.
+  - Blur every child's face before a photo goes on the site, even with permission. Check each photo at full size:
+    face detectors miss small, turned-away and downward-looking faces. Photos with no faces (crafts, hands) need no blur.
   - Resize photos to ~1200px and under 500 KB, and strip EXIF/GPS metadata.
   - Never publish a personal home address. Avoid personal phone numbers unless the person explicitly agrees.
 - **Security:**
