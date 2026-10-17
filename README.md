@@ -18,6 +18,21 @@ Only list a leader or show a photo with their or a parent's written OK.
 To preview on your computer: `python3 build.py && python3 scripts/check_site.py`, then open
 `_site/index.html`. The check catches broken links, empty email links, and accessibility mistakes.
 
+## Events from Google Calendar (optional)
+
+The site can list upcoming events from the troop's Google Calendar on its own, every morning, with times.
+
+1. In Google Calendar, open the calendar's **Settings and sharing > Integrate calendar** and copy the
+   **Secret address in iCal format**. It works even if the calendar is private. Treat it like a password.
+2. In this repository: **Settings > Secrets and variables > Actions > New repository secret**. Name it
+   `CALENDAR_ICS_URL` and paste the address. Optional, on the **Variables** tab: `CALENDAR_TZ` = `America/New_York`.
+3. **Actions > Build and deploy > Run workflow**. After that, changes to the calendar show up within a day.
+
+Only each event's title, date, time and place are used, and places stay hidden unless `"show_places": true` is set
+under `calendar` in `site.jsonc`. A description stays on the calendar unless it starts with `Public:`. Private and
+cancelled events are skipped. An event in `site.jsonc` replaces calendar events on the same day. With no secret, the
+site builds from `site.jsonc` as before.
+
 ## Pull in template updates
 
 ```
